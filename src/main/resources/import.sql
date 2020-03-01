@@ -1,0 +1,1 @@
+insert into employer values("example_Employer", 5000, 5000000)
