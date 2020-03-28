@@ -7,12 +7,12 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.List;
 
-//@Table(name = "employer")
+@Table(name = "employer")
 @Entity(name = "employer")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Employer {
+public class EmployerDTO {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
@@ -23,6 +23,13 @@ public class Employer {
     private int companySize;
     @Column(name = "company_earning")
     private long companyEarning;
-    @OneToMany
-    private List<Position> positions;
+    @OneToMany(cascade = {CascadeType.ALL})
+    private List<PositionDTO> positions;
+
+
+    public EmployerDTO(String name, int companySize, long companyEarning) {
+        this.name = name;
+        this.companySize = companySize;
+        this.companyEarning = companyEarning;
+    }
 }

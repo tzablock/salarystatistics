@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Position {
+public class PositionDTO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -25,9 +25,9 @@ public class Position {
     @Column(name = "avg_salary")
     private int avgSalary;
     @ManyToOne(cascade = {CascadeType.ALL})  //it make that we don't have to first save to db related employer but we can save position with this employer and it will be added at the same time
-    private Employer employer;
+    private EmployerDTO employer;
 
-    public Position(String positionName, List<Integer> salaries, int avgSalary, Employer employer) {
+    public PositionDTO(String positionName, List<Integer> salaries, int avgSalary, EmployerDTO employer) {
         this.positionName = positionName;
         this.salaries = salaries;
         this.avgSalary = avgSalary;

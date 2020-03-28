@@ -1,31 +1,44 @@
 package com.salary.service;
 
-import com.salary.repository.entity.Employer;
-import com.salary.repository.entity.Position;
+import com.salary.repository.entity.EmployerDTO;
+import com.salary.repository.entity.PositionDTO;
 import com.salary.repository.glassdor.EmployerRepository;
 import com.salary.repository.glassdor.PositionRepository;
+import com.salary.repository.glassdor.SalariesReposiory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class GlassdorService {
-    private EmployerRepository employers;
-    private PositionRepository positions;
+    private SalariesReposiory salariesReposiory;
 
     @Autowired
-    public GlassdorService(EmployerRepository employers, PositionRepository positions) {
-        this.employers = employers;
-        this.positions = positions;
+    public GlassdorService(SalariesReposiory salariesReposiory) {
+        this.salariesReposiory = salariesReposiory;
     }
 
-    public Map<String, Double> requestPositions(String companyName){
-        //TODO http request to this domain
-        //http://api.glassdoor.com/api/api.htm?v=1&format=json&t.p=120&t.k=fz6JLNDfgVs&action=employers&q=pharmaceuticals&userip=192.168.43.42&useragent=Mozilla/%2F4.0
+    public Map<String, Map<String, Integer>> getEmployerPositionsSalaries(List<String> employers) {
+        return salariesReposiory.selectEmployersPositionsSalaries(employers);
+    }
 
-        positions.save(new Position("testPositionName", Arrays.asList(5000,4000), 4500,new Employer()));
-        return null;
+    public Map<String, Map<String, Integer>> getEmployerPositionsSalaries(List<String> employers, List<String> positions) {
+        return salariesReposiory.selectEmployersPositionsSalaries(employers, positions);
+    }
+
+    public Map<String, Integer> getPositionsSalaries(List<String> positions) {
+        return salariesReposiory.selectPositionsSalaries(positions);
+    }
+
+    public Map<String, Integer> getEmployerSalaries(String position, List<String> employers) {
+        return salariesReposiory.selectEmployerSalaries(position, employers);
+    }
+
+    public List<Integer> getSalaries(String employer, String position) {
+        return salariesReposiory.selectSalaries(employer, position);
     }
 }
