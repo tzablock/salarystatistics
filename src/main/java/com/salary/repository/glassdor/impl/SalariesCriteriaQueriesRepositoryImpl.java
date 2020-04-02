@@ -1,6 +1,5 @@
 package com.salary.repository.glassdor.impl;
 
-import com.salary.repository.entity.AggregatedEmployerDTO;
 import com.salary.repository.entity.AggregatedPositionDTO;
 import com.salary.repository.entity.PositionDTO;
 import com.salary.repository.glassdor.SalariesCriteriaQueriesRepository;

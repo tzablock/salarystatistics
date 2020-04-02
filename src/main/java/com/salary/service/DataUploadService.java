@@ -1,5 +1,6 @@
 package com.salary.service;
 
+import com.salary.controller.response.ResponseHandlerService;
 import com.salary.repository.entity.EmployerDTO;
 import com.salary.repository.entity.PositionDTO;
 import com.salary.repository.glassdor.EmployerRepository;
@@ -15,18 +16,24 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class DataUploadGlassdorService {
+public class DataUploadService {
     private SalariesReposiory salariesReposiory;
     private PositionRepository positionRepo;
     private EmployerRepository employerRepository;
     private RestService restService;
-
+    private ResponseHandlerService responseHandler;
+//TODO make minigful this Optional error or info mechanizm (extract to other class ?)
     @Autowired
-    public DataUploadGlassdorService(SalariesReposiory salariesReposiory, PositionRepository positionRepo, EmployerRepository employerRepository, RestService restService) {
+    public DataUploadService(SalariesReposiory salariesReposiory,
+                             PositionRepository positionRepo,
+                             EmployerRepository employerRepository,
+                             RestService restService,
+                             ResponseHandlerService responseHandler) {
         this.salariesReposiory = salariesReposiory;
         this.positionRepo = positionRepo;
         this.employerRepository = employerRepository;
         this.restService = restService;
+        this.responseHandler = responseHandler;
     }
 
     public Optional<String> requestPositionsWithSalaries(String companyName){
@@ -50,17 +57,23 @@ public class DataUploadGlassdorService {
         }
     }
 
-    //Eployers list
-    //https://www.glassdoor.com/searchsuggest/typeahead?source=Review&version=New&input=Nov&rf=full
-    //Countries:
-    //https://www.glassdoor.com/findPopularLocationAjax.htm?term=Z&maxLocationsToReturn=10
+    public Optional<String> uploadEmployer(EmployerDTO employer) {
+        return responseHandler.invokeOrErrorMessage(employerRepository.ifNotExistByName(employer.getName()) ,
+                                                    () -> employerRepository.save(employer.synchronizeRelation()),
+                                                    String.format("Employer with name %s already exist.", employer.getName()));
+    }
 
-
-    //https://de.glassdoor.ch/Gehalt/Novartis-Medical-Science-Liaison-Z%C3%BCrich-Geh%C3%A4lter-EJI_IE6667.0,8_KO9,32_IL.33,39_IM1144.htm
-    //Employeer
-    //6-209
-    //Position:
-//1050-1083 !!
-//i740 ?
+    public Optional<String> uploadPosition(PositionDTO position) {
+        List<PositionDTO> positions = positionRepo.findByPositionNameAndEmployer_Name(position.getPositionName(),
+                                                                                           position.getEmployer().getName());
+        return responseHandler.addOrUpdateOrErrorMessage(positions.isEmpty(),
+                                                         () -> positionRepo.save(position.synchronizeRelation()),
+                                                         () -> {
+                                                                 PositionDTO positionToEdit = positions.get(0);
+                                                                 positionToEdit.addSalary(position.getSalaries());
+                                                                 positionRepo.save(positionToEdit);
+                                                               }
+                                                         );
+    }
 
 }

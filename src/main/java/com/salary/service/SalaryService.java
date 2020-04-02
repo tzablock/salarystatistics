@@ -14,11 +14,11 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class GlassdorService {
+public class SalaryService {
     private SalariesReposiory salariesReposiory;
 
     @Autowired
-    public GlassdorService(SalariesReposiory salariesReposiory) {
+    public SalaryService(SalariesReposiory salariesReposiory) {
         this.salariesReposiory = salariesReposiory;
     }
 
