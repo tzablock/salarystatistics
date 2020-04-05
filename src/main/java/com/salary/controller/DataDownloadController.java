@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-public class DataDownloadController {
+public class DataDownloadController { //TODO IT tests
     private SalaryService salaryService;
 
     @Autowired

@@ -1,6 +1,6 @@
 package com.salary.service;
 
-import com.salary.controller.response.ResponseHandlerService;
+import com.salary.controller.response.ResponseWrapper;
 import com.salary.repository.entity.EmployerDTO;
 import com.salary.repository.entity.PositionDTO;
 import com.salary.repository.glassdor.EmployerRepository;
@@ -13,30 +13,26 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-public class DataUploadService {
+public class DataUploadService { //TODO unit tests
     private SalariesReposiory salariesReposiory;
     private PositionRepository positionRepo;
     private EmployerRepository employerRepository;
     private RestService restService;
-    private ResponseHandlerService responseHandler;
-//TODO make minigful this Optional error or info mechanizm (extract to other class ?)
+
     @Autowired
     public DataUploadService(SalariesReposiory salariesReposiory,
                              PositionRepository positionRepo,
                              EmployerRepository employerRepository,
-                             RestService restService,
-                             ResponseHandlerService responseHandler) {
+                             RestService restService) {
         this.salariesReposiory = salariesReposiory;
         this.positionRepo = positionRepo;
         this.employerRepository = employerRepository;
         this.restService = restService;
-        this.responseHandler = responseHandler;
     }
 
-    public Optional<String> requestPositionsWithSalaries(String companyName){
+    public ResponseWrapper requestPositionsWithSalaries(String companyName){
         try {
             //TODO http request to this domain
             //http://api.glassdoor.com/api/api.htm?v=1&format=json&t.p=120&t.k=fz6JLNDfgVs&action=employers&q=pharmaceuticals&userip=192.168.43.42&useragent=Mozilla/%2F4.0
@@ -51,29 +47,29 @@ public class DataUploadService {
             //TODO if request fail than return
             List<Employer> empls = restService.getEmployers("Nov");
             System.out.println("DADA");
-            return Optional.empty();
+            return new ResponseWrapper("");
         } catch (Exception e){
-            return Optional.of(String.format("Internal Server Problem: %s", e.getMessage()));
+            return new ResponseWrapper(String.format("Internal Server Problem: %s", e.getMessage()));
         }
     }
 
-    public Optional<String> uploadEmployer(EmployerDTO employer) {
-        return responseHandler.invokeOrErrorMessage(employerRepository.ifNotExistByName(employer.getName()) ,
-                                                    () -> employerRepository.save(employer.synchronizeRelation()),
-                                                    String.format("Employer with name %s already exist.", employer.getName()));
+    public ResponseWrapper uploadEmployer(EmployerDTO employer) {
+        return new ResponseWrapper(String.format("Employer with name %s already exist.", employer.getName()))
+                                   .invokeOnCondition(employerRepository.ifNotExistByName(employer.getName()),
+                                                      () -> employerRepository.save(employer.synchronizeRelation()));
     }
 
-    public Optional<String> uploadPosition(PositionDTO position) {
+    public ResponseWrapper uploadPosition(PositionDTO position) {
         List<PositionDTO> positions = positionRepo.findByPositionNameAndEmployer_Name(position.getPositionName(),
                                                                                            position.getEmployer().getName());
-        return responseHandler.addOrUpdateOrErrorMessage(positions.isEmpty(),
-                                                         () -> positionRepo.save(position.synchronizeRelation()),
-                                                         () -> {
-                                                                 PositionDTO positionToEdit = positions.get(0);
-                                                                 positionToEdit.addSalary(position.getSalaries());
-                                                                 positionRepo.save(positionToEdit);
-                                                               }
-                                                         );
+        return new ResponseWrapper("").invokeOrAlternativeOnCondition(positions.isEmpty(),
+                                                                                   () -> positionRepo.save(position.synchronizeRelation()),
+                                                                                   () -> {
+                                                                                         PositionDTO positionToEdit = positions.get(0);
+                                                                                         positionToEdit.addSalaries(position.getSalaries());
+                                                                                         positionRepo.save(positionToEdit);
+                                                                                          }
+                                                                                  );
     }
 
 }

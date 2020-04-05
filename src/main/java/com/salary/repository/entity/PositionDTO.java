@@ -6,8 +6,12 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  *   {
@@ -54,8 +58,8 @@ public class PositionDTO implements BiDirectionalRelationEntity{
         return this;
     }
 
-    public void addSalary(List<Integer> salaries){
-        this.salaries.addAll(salaries);
+    public void addSalaries(List<Integer> salaries){
+        this.salaries = this.salaries == null ? salaries : Stream.of(this.salaries,salaries).flatMap(Collection::stream).collect(toList());
         this.avgSalary = this.salaries.stream().collect(Collectors.averagingInt(i -> i)).intValue();
     }
 }
