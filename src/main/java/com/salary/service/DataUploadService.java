@@ -1,6 +1,6 @@
 package com.salary.service;
 
-import com.salary.controller.response.ResponseWrapper;
+import com.salary.controller.response.ResponseInvocationWrapper;
 import com.salary.repository.entity.EmployerDTO;
 import com.salary.repository.entity.PositionDTO;
 import com.salary.repository.glassdor.EmployerRepository;
@@ -32,7 +32,7 @@ public class DataUploadService { //TODO unit tests
         this.restService = restService;
     }
 
-    public ResponseWrapper requestPositionsWithSalaries(String companyName){
+    public ResponseInvocationWrapper requestPositionsWithSalaries(String companyName){
         try {
             //TODO http request to this domain
             //http://api.glassdoor.com/api/api.htm?v=1&format=json&t.p=120&t.k=fz6JLNDfgVs&action=employers&q=pharmaceuticals&userip=192.168.43.42&useragent=Mozilla/%2F4.0
@@ -47,22 +47,22 @@ public class DataUploadService { //TODO unit tests
             //TODO if request fail than return
             List<Employer> empls = restService.getEmployers("Nov");
             System.out.println("DADA");
-            return new ResponseWrapper("");
+            return new ResponseInvocationWrapper("");
         } catch (Exception e){
-            return new ResponseWrapper(String.format("Internal Server Problem: %s", e.getMessage()));
+            return new ResponseInvocationWrapper(String.format("Internal Server Problem: %s", e.getMessage()));
         }
     }
 
-    public ResponseWrapper uploadEmployer(EmployerDTO employer) {
-        return new ResponseWrapper(String.format("Employer with name %s already exist.", employer.getName()))
+    public ResponseInvocationWrapper uploadEmployer(EmployerDTO employer) {
+        return new ResponseInvocationWrapper(String.format("Employer with name %s already exist.", employer.getName()))
                                    .invokeOnCondition(employerRepository.ifNotExistByName(employer.getName()),
                                                       () -> employerRepository.save(employer.synchronizeRelation()));
     }
 
-    public ResponseWrapper uploadPosition(PositionDTO position) {
+    public ResponseInvocationWrapper uploadPosition(PositionDTO position) {
         List<PositionDTO> positions = positionRepo.findByPositionNameAndEmployer_Name(position.getPositionName(),
                                                                                            position.getEmployer().getName());
-        return new ResponseWrapper("").invokeOrAlternativeOnCondition(positions.isEmpty(),
+        return new ResponseInvocationWrapper("").invokeOrAlternativeOnCondition(positions.isEmpty(),
                                                                                    () -> positionRepo.save(position.synchronizeRelation()),
                                                                                    () -> {
                                                                                          PositionDTO positionToEdit = positions.get(0);

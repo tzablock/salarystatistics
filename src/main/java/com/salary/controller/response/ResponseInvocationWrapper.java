@@ -1,26 +1,21 @@
 package com.salary.controller.response;
 
-import com.salary.repository.entity.EmployerDTO;
-import com.salary.repository.entity.PositionDTO;
 import org.glassfish.jersey.internal.util.Producer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
-public class ResponseWrapper { //TODO test
+public class ResponseInvocationWrapper { //TODO test
     private Optional<String> errorMessageOpt;
     private String errorMessage;
 
-    public ResponseWrapper(String errorMessage) {
+    public ResponseInvocationWrapper(String errorMessage) {
         this.errorMessageOpt = Optional.empty();
         this.errorMessage = errorMessage;
     }
 
-    public ResponseWrapper invokeOnCondition(boolean condition, Runnable logic) {
+    public ResponseInvocationWrapper invokeOnCondition(boolean condition, Runnable logic) {
         return handleException(() -> {
             if (condition) {
                 logic.run();
@@ -31,7 +26,7 @@ public class ResponseWrapper { //TODO test
         });
     }
 
-    public ResponseWrapper invokeOrAlternativeOnCondition(boolean condition, Runnable logic, Runnable logic1) {
+    public ResponseInvocationWrapper invokeOrAlternativeOnCondition(boolean condition, Runnable logic, Runnable logic1) {
         return handleException(() -> {
             if (condition) {
                 logic.run();
@@ -47,7 +42,7 @@ public class ResponseWrapper { //TODO test
                               .orElse(ResponseEntity.ok(successMessage));
     }
 
-    private ResponseWrapper handleException(Producer<Optional<String>> logic) {
+    private ResponseInvocationWrapper handleException(Producer<Optional<String>> logic) {
         try {
             errorMessageOpt = logic.call();
         } catch (RuntimeException e) {
