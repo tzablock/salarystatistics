@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-public class DataUploadController { //TODO IT tests
+public class DataUploadController {
     private DataUploadService dataUploadService;
     private RequestValidator requestValidator;
 
@@ -51,22 +51,15 @@ public class DataUploadController { //TODO IT tests
         Optional<ResponseEntity<String>> inputInvalidResponseOpt = this.requestValidator.validatePositionInput(position);
         return inputInvalidResponseOpt.orElse(
                 dataUploadService.uploadPosition(position)
-                        .httpFormat(String.format("Position with %s name %s salaries %d avg salary was added/updated.", //TODO to response object
+                        .httpFormat(String.format("Position with %s for employer %s name %s salaries was added/updated.",
                                                   position.getPositionName(),
+                                                  position.getEmployer().getName(),
                                                   position.getSalaries().stream()
                                                                         .map(Object::toString)
-                                                                        .collect(Collectors.joining(",")),
-                                                  position.getAvgSalary()))
+                                                                        .collect(Collectors.joining(","))))
         );
     }
 
-    //TODO edit /dataUpload/employer
-    //TODO edit /dataUpload/position
-
-
-
-    //TODO position with salary from fields for employer
-
-    //TODO employers from excel
-    //TODO positions with salaries for employers from excel
+    //TODO upload excel file and from it extract multiple employers like /dataUpload/employer
+    //TODO upload excel file and from it extract multiple positions with salaries like /dataUpload/position
 }

@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class DataUploadService { //TODO unit tests
+public class DataUploadService {
     private SalariesReposiory salariesReposiory;
     private PositionRepository positionRepo;
     private EmployerRepository employerRepository;
